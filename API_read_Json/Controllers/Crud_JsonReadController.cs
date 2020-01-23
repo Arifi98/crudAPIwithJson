@@ -18,7 +18,7 @@ namespace API_read_Json.Controllers
     [System.Web.Http.RoutePrefix("api/Crud_JsonRead")]
     public class Crud_JsonReadController : ApiController
     {
-        
+
         public class PhoneBook
         {
             public int id { get; set; }
@@ -26,7 +26,7 @@ namespace API_read_Json.Controllers
             public string type { get; set; }
             public long number { get; set; }
         }
-       
+
 
 
         public List<PhoneBook> LoadJson(string path)
@@ -47,15 +47,15 @@ namespace API_read_Json.Controllers
 
         //htttp:localhot:porta/api/Crud_JsonRead/Post?Parametrat
         [System.Web.Http.Route("Post")]
-       [System.Web.Http.HttpPost]
-        public void Post(string name, string type, long number , int id )
+        [System.Web.Http.HttpPost]
+        public void Post(string name, string type, long number, int id)
         {
             string jsonii;
             var a = LoadJson(@"C:\Program Files (x86)\IIS Express\file.json");
 
             PhoneBook phoneBook = new PhoneBook();
             phoneBook.id = id;
-            phoneBook.Name =name;
+            phoneBook.Name = name;
             phoneBook.type = type;
             phoneBook.number = number;
 
@@ -75,23 +75,30 @@ namespace API_read_Json.Controllers
             //shkruaj nje string json at specifik path :P
             System.IO.File.WriteAllText(@"C:\Program Files (x86)\IIS Express\file.json", jsonii);
 
-            
+
         }
 
 
         //htttp:localhot:porta/api/Crud_JsonRead/edit?Parametrat
         [System.Web.Http.Route("edit")]
         [System.Web.Http.HttpPost]
-        public void Edit(int id,string emer, string type, long number)
+        public void Edit(int id, string emer, string type, long number)
         {
             List<PhoneBook> PhoneBook = new List<PhoneBook>();
 
             string jsonii;
             var a = LoadJson(@"C:\Program Files (x86)\IIS Express\file.json");
-            a[id].id = id;
-            a[id].Name = emer;
-            a[id].number = number;
-            a[id].type = type;
+            foreach (var item in a)
+            {
+                if (item.id == id)
+                {
+                    item.id = id;
+                    item.Name = emer;
+                    item.type = type;
+                    item.number = number;
+                }
+            }
+
 
             jsonii = new JavaScriptSerializer().Serialize(a);
 
@@ -116,7 +123,7 @@ namespace API_read_Json.Controllers
                 a.Remove(item);
                 jsonii = new JavaScriptSerializer().Serialize(a);
                 System.IO.File.WriteAllText(@"C:\Program Files (x86)\IIS Express\file.json", jsonii);
-                return Request.CreateResponse(HttpStatusCode.OK,jsonii);
+                return Request.CreateResponse(HttpStatusCode.OK, jsonii);
             }
             else
             {
@@ -125,11 +132,6 @@ namespace API_read_Json.Controllers
             }
 
         }
-
-      
-
-
-
 
     }
 }
