@@ -27,7 +27,7 @@ namespace API_read_Json.Controllers
             public long number { get; set; }
         }
 
-
+        private string _pPath = @"C:\Program Files (x86)\IIS Express\file.json";
 
         public List<PhoneBook> LoadJson(string path)
         {
@@ -50,8 +50,10 @@ namespace API_read_Json.Controllers
         [System.Web.Http.HttpPost]
         public void Post(string name, string type, long number, int id)
         {
+            Orderby();
+
             string jsonii;
-            var a = LoadJson(@"C:\Program Files (x86)\IIS Express\file.json");
+            var a = LoadJson(_pPath);
 
             PhoneBook phoneBook = new PhoneBook();
             phoneBook.id = id;
@@ -73,7 +75,7 @@ namespace API_read_Json.Controllers
 
 
             //shkruaj nje string json at specifik path :P
-            System.IO.File.WriteAllText(@"C:\Program Files (x86)\IIS Express\file.json", jsonii);
+            System.IO.File.WriteAllText(_pPath, jsonii);
 
 
         }
@@ -87,7 +89,7 @@ namespace API_read_Json.Controllers
             List<PhoneBook> PhoneBook = new List<PhoneBook>();
 
             string jsonii;
-            var a = LoadJson(@"C:\Program Files (x86)\IIS Express\file.json");
+            var a = LoadJson(_pPath);
             foreach (var item in a)
             {
                 if (item.id == id)
@@ -102,7 +104,7 @@ namespace API_read_Json.Controllers
 
             jsonii = new JavaScriptSerializer().Serialize(a);
 
-            System.IO.File.WriteAllText(@"C:\Program Files (x86)\IIS Express\file.json", jsonii);
+            System.IO.File.WriteAllText(_pPath, jsonii);
 
 
         }
@@ -115,14 +117,14 @@ namespace API_read_Json.Controllers
             List<PhoneBook> PhoneBook = new List<PhoneBook>();
 
             string jsonii;
-            var a = LoadJson(@"C:\Program Files (x86)\IIS Express\file.json");
+            var a = LoadJson(_pPath);
 
             var item = a.SingleOrDefault(x => x.id == id);
             if (item != null)
             {
                 a.Remove(item);
                 jsonii = new JavaScriptSerializer().Serialize(a);
-                System.IO.File.WriteAllText(@"C:\Program Files (x86)\IIS Express\file.json", jsonii);
+                System.IO.File.WriteAllText(_pPath, jsonii);
                 return Request.CreateResponse(HttpStatusCode.OK, jsonii);
             }
             else
@@ -130,6 +132,29 @@ namespace API_read_Json.Controllers
                 string nkgjendet = "nuk gjen ndonje me kte id";
                 return Request.CreateResponse(HttpStatusCode.OK, nkgjendet);
             }
+
+        }
+
+
+
+
+        public void Orderby()
+        {
+            var listof_phoneBooks = LoadJson(_pPath);
+            if (listof_phoneBooks != null)
+            {
+                List<PhoneBook> SortedList = listof_phoneBooks.OrderBy(o => o.Name).ToList();
+
+                string jsonii = new JavaScriptSerializer().Serialize(SortedList);
+
+                System.IO.File.WriteAllText(_pPath, jsonii);
+
+            }
+            else
+            {
+               
+            }
+          
 
         }
 
