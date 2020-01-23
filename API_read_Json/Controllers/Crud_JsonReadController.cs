@@ -4,24 +4,29 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Web;
 using System.Web.Http;
+using System.Web.Http.Cors;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
 
 namespace API_read_Json.Controllers
 {
-
-    public class Crud_JsonReadController : Controller
+    [EnableCors(origins: "*", headers: "*", methods: "*")]
+    [System.Web.Http.RoutePrefix("api/Crud_JsonRead")]
+    public class Crud_JsonReadController : ApiController
     {
-
+        
         public class PhoneBook
         {
+            public int id { get; set; }
             public string Name { get; set; }
             public string type { get; set; }
             public long number { get; set; }
         }
-
+       
 
 
         public List<PhoneBook> LoadJson(string path)
@@ -40,63 +45,92 @@ namespace API_read_Json.Controllers
 
         }
 
-        // GET: Crud_JsonRead
-        [System.Web.Http.HttpPost]
-        public void INSERT(/*string name, string type, int number*/)
+        //htttp:localhot:porta/api/Crud_JsonRead/Post?Parametrat
+        [System.Web.Http.Route("Post")]
+       [System.Web.Http.HttpPost]
+        public void Post(string name, string type, long number , int id )
         {
             string jsonii;
             var a = LoadJson(@"C:\Program Files (x86)\IIS Express\file.json");
 
             PhoneBook phoneBook = new PhoneBook();
-
-            phoneBook.Name = "asdf";
-            phoneBook.type = "asdf";
-            phoneBook.number = 4448454845548;
+            phoneBook.id = id;
+            phoneBook.Name =name;
+            phoneBook.type = type;
+            phoneBook.number = number;
 
             if (a == null)
             {
                 List<PhoneBook> phoneBooks = new List<PhoneBook>();
                 phoneBooks.Add(phoneBook);
-                 jsonii = new JavaScriptSerializer().Serialize(phoneBooks);
+                jsonii = new JavaScriptSerializer().Serialize(phoneBooks);
             }
             else
             {
                 a.Add(phoneBook);
                 jsonii = new JavaScriptSerializer().Serialize(a);
             }
-           
-
-
-
-          
 
 
             //shkruaj nje string json at specifik path :P
             System.IO.File.WriteAllText(@"C:\Program Files (x86)\IIS Express\file.json", jsonii);
 
-
+            
         }
 
 
+        //htttp:localhot:porta/api/Crud_JsonRead/edit?Parametrat
+        [System.Web.Http.Route("edit")]
         [System.Web.Http.HttpPost]
-        public void Edit(/*string emer, string type, int number*/)
+        public void Edit(int id,string emer, string type, long number)
         {
             List<PhoneBook> PhoneBook = new List<PhoneBook>();
-            PhoneBook.Add(new PhoneBook()
-            {
-                Name = "asdf",
-                type = "asdf",
-                number = 4448454845548
-            });
 
-            var ekstract = LoadJson(@"C:\Program Files (x86)\IIS Express\file.json");
-            foreach (var item in ekstract)
-            {
+            string jsonii;
+            var a = LoadJson(@"C:\Program Files (x86)\IIS Express\file.json");
+            a[id].id = id;
+            a[id].Name = emer;
+            a[id].number = number;
+            a[id].type = type;
 
-            }
+            jsonii = new JavaScriptSerializer().Serialize(a);
+
+            System.IO.File.WriteAllText(@"C:\Program Files (x86)\IIS Express\file.json", jsonii);
 
 
         }
+
+        //htttp:localhot:porta/api/Crud_JsonRead/delete?Parametrat
+        [System.Web.Http.Route("delete")]
+        [System.Web.Http.HttpDelete]
+        public HttpResponseMessage fshij(int id)
+        {
+            List<PhoneBook> PhoneBook = new List<PhoneBook>();
+
+            string jsonii;
+            var a = LoadJson(@"C:\Program Files (x86)\IIS Express\file.json");
+
+            var item = a.SingleOrDefault(x => x.id == id);
+            if (item != null)
+            {
+                a.Remove(item);
+                jsonii = new JavaScriptSerializer().Serialize(a);
+                System.IO.File.WriteAllText(@"C:\Program Files (x86)\IIS Express\file.json", jsonii);
+                return Request.CreateResponse(HttpStatusCode.OK,jsonii);
+            }
+            else
+            {
+                string nkgjendet = "nuk gjen ndonje me kte id";
+                return Request.CreateResponse(HttpStatusCode.OK, nkgjendet);
+            }
+
+        }
+
+      
+
+
+
 
     }
 }
+
